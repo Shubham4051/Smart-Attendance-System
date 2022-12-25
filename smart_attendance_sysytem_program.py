@@ -1,18 +1,28 @@
+#for computer-vision operations
 import cv2
+#for numerical calculation with accordance to cv2
 import numpy as np 
+#for face detection and recognition
 import face_recognition as face_rec
+#for system environvement traversal
 import os 
+#for text to speech output
 import pyttsx3 as textSpeach
+#for date and time sync
 from datetime import datetime
 
 engine = textSpeach.init()
+
+# for resizing the img if needed 
 
 '''def resize(img, size):
     width = int(img.shape[1]*size)
     height = int(img.shape[0]*size)
     dimension = (width, height)
     return cv2.resize(img, dimension, interpolation= cv2.INTER_AREA)
+
 '''
+
 path = 'student_images'
 studentImg = []
 studentName = []
@@ -25,12 +35,13 @@ for cl in myList :
 def findEncoding(images) :
     imgEncodings = []
     for img in images :
-        #img = resize(img, 0.50)
+        #img = resize(img, 0.50) (Here not required in my pc)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         encodeimg = face_rec.face_encodings(img)[0]
         imgEncodings.append(encodeimg)
     return imgEncodings
 
+#for recording the attendance records 
 def MarkAttendence(name) :
     with open('attendence.csv', 'r+') as f :
         myDataList = f.readlines()
@@ -42,13 +53,16 @@ def MarkAttendence(name) :
         if name not in nameList :
             now = datetime.now()
             timestr = now.strftime('%H:%M')
+            #marking of record
             f.writelines(f'\n{name}, {timestr}')
+            #speech out 
             statement = str('welcome to class' + name)
             engine.say(statement)
             engine.runAndWait()
 
 EncodeList = findEncoding(studentImg)
 
+#vision operation via program
 vid = cv2.VideoCapture(0)
 while True :
     success, frame = vid.read()
@@ -72,5 +86,6 @@ while True :
             cv2.putText(frame, name, (x1+6, y2-6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
             MarkAttendence(name)
 
+    #set frame name and waiting time
     cv2.imshow('Smart Attendance', frame)
     cv2.waitKey(1)
